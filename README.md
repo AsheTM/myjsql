@@ -35,7 +35,8 @@ const myjsql = require('myjsql');
 
 ```javascript
 ...
-myjsql.connect({    // Return object same as `createConnection`
+myjsql.connect({    // Return object same as `createConnection` 
+                    // of the module `mysql`
                     // You can work with as you are working `mysql`
                     // Same as `createConnection`
         "host"      :   "localhost", 

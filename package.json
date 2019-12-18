@@ -1,6 +1,6 @@
 {
   "name": "mjsql",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,8 +12,13 @@
     "email": "haithemalidaoud@gmail.com"
   },
   "contributors": [
-    "DAWOUD Haitham",
-    "EL ALAMI Mouaad"
+    {
+      "name": "DAWOUD Haitham", 
+      "email": "haithemalidaoud@gmail.com"
+    }, {
+      "name": "EL ALAMI Mouaad", 
+      "email": "mouaadelalalami@gmail.com"
+    }
   ],
   "keywords": [
     "mysql",
