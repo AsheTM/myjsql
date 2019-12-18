@@ -1,22 +1,23 @@
 {
-  "name": "myjsql",
-  "version": "1.0.2",
+  "name": "myjssql",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "babel build.js -o ./index.js", 
+    "build": "babel build.js -o ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": {
-    "name": "DAWOUD Haitham", 
+    "name": "DAWOUD Haitham",
     "email": "haithemalidaoud@gmail.com"
   },
   "contributors": [
     {
-      "name": "DAWOUD Haitham", 
+      "name": "DAWOUD Haitham",
       "email": "haithemalidaoud@gmail.com"
-    }, {
-      "name": "EL ALAMI Mouaad", 
+    },
+    {
+      "name": "EL ALAMI Mouaad",
       "email": "mouaadelalalami@gmail.com"
     }
   ],
