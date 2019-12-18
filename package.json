@@ -1,0 +1,36 @@
+{
+  "name": "mjsql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel build.js -o ./index.js", 
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "DAWOUD Haitham", 
+    "email": "haithemalidaoud@gmail.com"
+  },
+  "contributors": [
+    "DAWOUD Haitham",
+    "EL ALAMI Mouaad"
+  ],
+  "keywords": [
+    "mysql",
+    "js",
+    "database",
+    "sql"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "mysql": "^2.17.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-transform-object-assign": "^7.7.4",
+    "@babel/plugin-transform-spread": "^7.7.4",
+    "@babel/preset-env": "^7.7.6"
+  }
+}
