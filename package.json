@@ -1,6 +1,6 @@
 {
-  "name": "mjsql",
-  "version": "1.0.1",
+  "name": "myjsql",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {

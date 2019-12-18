@@ -1,6 +1,5 @@
 
 MyJSQL
-
 =============
 
 A library to simplify the usage of `mysql` module by chainning differents methods to construct a query and then execute it.
