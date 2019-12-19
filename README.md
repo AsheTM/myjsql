@@ -1,5 +1,5 @@
 
-MyJSSQL
+MyJQL
 =============
 
 A library to simplify the usage of `mysql` module by chainning differents methods to construct a query and then execute it.
@@ -14,7 +14,7 @@ Installation
 To use with node:
 
 ```bash
-$ npm install --save myjssql
+$ npm install --save myjql
 ```
 
 
@@ -24,7 +24,7 @@ Usage
 
 ```javascript
 ...
-const myjsql = require('myjssql');
+const myjql = require('myjql');
 ...
 ```
 
@@ -34,7 +34,7 @@ const myjsql = require('myjssql');
 
 ```javascript
 ...
-myjsql.connect({    // Return object same as `createConnection` 
+myjql.connect({    // Return object same as `createConnection` 
                     // of the module `mysql`
                     // You can work with as you are working `mysql`
                     // Same as `createConnection`
@@ -52,7 +52,7 @@ myjsql.connect({    // Return object same as `createConnection`
 
 ```javascript
 ...
-let selectFromQuery = myjsql.Query
+let selectFromQuery = myjql.Query
     .select('colA, colB')       // String of cols with `,` between each col
  // .select(['colA', 'colB'])   // Or an Array that contains different cols
     .from('tableA')             // Table as string (Only string is supported)
@@ -76,7 +76,7 @@ let selectFromQuery = myjsql.Query
 
 ```javascript
 ...
-let insertIntoQuery = myjsql.Query
+let insertIntoQuery = myjql.Query
     .insert('tableA')                   // Table as string (Only string is supported)
         .cols('colA, colB, colC')       // String of cols with `,` between each col
 //      .cols(['colA', 'colB', 'colC']) // Or an Array that contains different cols
@@ -95,7 +95,7 @@ let insertIntoQuery = myjsql.Query
 
 ```javascript
 ...
-let updateQuery = myjsql.Query
+let updateQuery = myjql.Query
     .update('tableA')                           // Table as string (Only string is supported)
         .set('onlyOneColName', 'theNewValue')   // Set the col and its value
                                                 // If a string given in 1st arg, 
@@ -118,11 +118,11 @@ let updateQuery = myjsql.Query
 
 ```javascript
 ...
-let deleteFromQuery = myjsql.Query
+let deleteFromQuery = myjql.Query
     .delete('tableName')                        // Table as string (Only string is supported)
     .exec();
 // Or
-deleteFromQuery = myjsql.Query
+deleteFromQuery = myjql.Query
     .delete()
         .from('tableName')
     .exec();
@@ -136,7 +136,7 @@ deleteFromQuery = myjsql.Query
 ```javascript
 ...
 // If you want to get the query string
-let query = myjsql.Query
+let query = myjql.Query
     .select("*")
         .from("tableName");
 query.toString();   // 'SELECT * FROM tableName'
@@ -150,7 +150,7 @@ query.toString();   // 'SELECT * FROM tableName'
 ```javascript
 ...
 // If you have your own query string
-let ownQuery = myjsql.Query.of("...");
+let ownQuery = myjql.Query.of("...");
 ```
 
 
