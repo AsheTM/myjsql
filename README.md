@@ -59,12 +59,24 @@ let selectFromQuery = myjql.Query
     .where()
         .attr('age')
             .gte(25)
+//  .where()
+//      .attr('age')
+//          .gt(25)
+//  .where()
+//      .attr('age')
+//          .lte(25)
+//  .where()
+//      .attr('age')
+//          .lt(25)
+//  .where()
+//      .attr('age')
+//          .equals(25)
     .and()
         .attr('name')
             .like('%somename')
     .and()
         .attr("something")
-            .equal()            // If nothing given, it replace it by '?'
+            .eq()               // If nothing given, it replace it by '?'
     .exec(["18"]);              // Data given in order to replace the '?' value
                                 // in the same order of the 'attr'
 ...
@@ -120,11 +132,17 @@ let updateQuery = myjql.Query
 ...
 let deleteFromQuery = myjql.Query
     .delete('tableName')                        // Table as string (Only string is supported)
+    .where()
+        .attr('idColumn')
+            .equal(20);
     .exec();
 // Or
 deleteFromQuery = myjql.Query
     .delete()
         .from('tableName')
+    .where()
+        .attr('idColumn')
+            .equal(20);
     .exec();
 ...
 ```

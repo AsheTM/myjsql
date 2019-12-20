@@ -142,12 +142,18 @@ function () {
   _createClass(Query, [{
     key: "where",
     value: function where() {
+      /**
+       *  @returns        Query instance | Where instance
+       */
       if (!this._where) return this._where = new Where(this);
       return this;
     }
   }, {
     key: "and",
     value: function and() {
+      /**
+       *  @returns        Query instance | Where instance
+       */
       if (this._where) {
         this._query += ' AND ';
         return this._where;
@@ -163,6 +169,18 @@ function () {
         size: null
       };
       var arg2 = arguments.length > 1 ? arguments[1] : undefined;
+
+      /**
+       *  @argument       arg1
+       *  @type           number | { page: number, size: number }
+       *  @returns        Query instance
+       *  
+       *  ----------------
+       *  
+       *  @argument       arg2
+       *  @type           number
+       *  @returns        Query instance
+       */
       this._size = +arg1.size || Number(arg1) || +this._size;
       this._page = (Number(arg2) || +arg1.page || +this._page) - 1;
 
@@ -182,13 +200,21 @@ function () {
   }, {
     key: "sort",
     value: function sort(col, order) {
+      /**
+       *  @argument       col
+       *  @type           string | Array<string>
+       *  @returns        Query instance
+       *  
+       *  ----------------
+       *  
+       *  @argument       order
+       *  @type           ORDER enum values | { sort: ORDER enum values }
+       *  @returns        Query instance
+       */
       var column = '',
           sortOrder = _lodash["default"].isObject(order) ? order.sort : ORDER.ASC;
 
       switch (true) {
-        case !col || !_lodash["default"].includes(ORDER, order):
-          return this;
-
         case _lodash["default"].isArray(col):
           col = col.reduce(function (acc, c) {
             return acc + ', ' + c;
@@ -209,16 +235,31 @@ function () {
   }, {
     key: "sortAsc",
     value: function sortAsc(col) {
+      /**
+       *  @argument       col
+       *  @type           string | Array<string>
+       *  @returns        Query instance
+       */
       return this.sort(col, ORDER.ASC);
     }
   }, {
     key: "sortDesc",
     value: function sortDesc(col) {
+      /**
+       *  @argument       col
+       *  @type           string | Array<string>
+       *  @returns        Query instance
+       */
       return this.sort(col, ORDER.DESC);
     }
   }, {
     key: "exec",
     value: function exec(arg) {
+      /**
+       *  @argument       arg
+       *  @type           string | number | boolean | Array<string | number | boolean | Array<...>>
+       *  @returns        
+       */
       var array = [];
 
       switch (true) {
@@ -235,6 +276,9 @@ function () {
   }, {
     key: "toString",
     value: function toString() {
+      /**
+       *  @returnsstring
+       */
       return this._query;
     }
   }], [{
@@ -260,7 +304,7 @@ function () {
           throwErrorWrongArgs();
       }
 
-      query += ' ' + columns.reduce(function (acc, val, index) {
+      query += ' ' + columns.reduce(function (acc, val) {
         return (acc ? ', ' : '') + val;
       }, null);
       return new Select(new Query(query, columns));
@@ -329,22 +373,33 @@ function () {
   function Select(query) {
     _classCallCheck(this, Select);
 
+    /**
+     *  @argument       query
+     *  @type           Query instance
+     */
     this._query = query;
   }
 
   _createClass(Select, [{
     key: "from",
     value: function from(table) {
+      /**
+       *  @argument       table
+       *  @type           string | number | boolean
+       *  @returns        Query instance
+       */
       switch (true) {
+        case _lodash["default"].isBoolean(table):
+        case _lodash["default"].isNumber(table):
         case _lodash["default"].isString(table):
-          this._query._table = table;
+          this._query._table = String(table);
+          this._query._query += ' FROM ' + this._query._table;
           break;
 
         default:
           throwErrorWrongArgs();
       }
 
-      this._query._query += ' FROM ' + this._query._table;
       return this._query;
     }
   }]);
@@ -358,7 +413,10 @@ function () {
   function Where(query) {
     _classCallCheck(this, Where);
 
-    if (!query || !_lodash["default"].isObject(query)) throwErrorWrongArgs();
+    /**
+     *  @argument       query
+     *  @type           Query instance
+     */
     this._query = query;
     this._query._query += ' WHERE ';
   }
@@ -366,8 +424,21 @@ function () {
   _createClass(Where, [{
     key: "attr",
     value: function attr(col) {
-      this._query._query += "".concat(col);
-      return new Statment(this);
+      /**
+       *  @argument       col
+       *  @type           string
+       *  @returns        Statment instance
+       */
+      switch (true) {
+        case _lodash["default"].isString(col):
+          this._query._query += "".concat(col);
+          break;
+
+        default:
+          throwErrorWrongArgs();
+      }
+
+      return new Statment(this._query);
     }
   }]);
 
@@ -377,16 +448,24 @@ function () {
 var Statment =
 /*#__PURE__*/
 function () {
-  function Statment(where) {
+  function Statment(query) {
     _classCallCheck(this, Statment);
 
-    if (!where || !_lodash["default"].isObject(where)) throwErrorWrongArgs();
-    this._where = where;
+    /**
+     *  @argument       query
+     *  @type           Query instance
+     */
+    this._query = query;
   }
 
   _createClass(Statment, [{
     key: "eq",
     value: function eq(val) {
+      /**
+       *  @argument       val
+       *  @type           number | string | boolean
+       *  @returns        Query instance
+       */
       var value = '?';
 
       switch (true) {
@@ -403,12 +482,33 @@ function () {
           throwErrorWrongArgs();
       }
 
-      this._where._query._query += " = ".concat(value);
-      return this._where._query;
+      this._query._query += " = ".concat(value);
+      return this._query;
+    }
+  }, {
+    key: "equals",
+    value: function equals(val) {
+      /**
+       *  @argument       val
+       *  @type           number | string | boolean
+       *  @returns        Query instance
+       */
+      return this.eq(val);
     }
   }, {
     key: "gt",
     value: function gt(val, equal) {
+      /**
+       *  @argument       val
+       *  @type           number | string
+       *  @returns        Query instance
+       *  
+       *  ----------------
+       *  
+       *  @argument       equal
+       *  @type           boolean
+       *  @returns        Query instance
+       */
       var value = '?';
 
       switch (true) {
@@ -421,17 +521,33 @@ function () {
           throwErrorWrongArgs();
       }
 
-      this._where._query._query += " >".concat(equal ? '=' : '', " ").concat(value);
-      return this._where._query;
+      this._query._query += " >".concat(equal ? '=' : '', " ").concat(value);
+      return this._query;
     }
   }, {
     key: "gte",
     value: function gte(val) {
+      /**
+       *  @argument       val
+       *  @type           number | string
+       *  @returns        Query instance
+       */
       return this.gt(val, true);
     }
   }, {
     key: "lt",
     value: function lt(val, equal) {
+      /**
+       *  @argument       val
+       *  @type           number | string
+       *  @returns        Query instance
+       *  
+       *  ----------------
+       *  
+       *  @argument       equal
+       *  @type           boolean
+       *  @returns        Query instance
+       */
       var value = '?';
 
       switch (true) {
@@ -444,17 +560,27 @@ function () {
           throwErrorWrongArgs();
       }
 
-      this._where._query._query += " <".concat(equal ? '=' : '', " ").concat(value);
-      return this._where._query;
+      this._query._query += " <".concat(equal ? '=' : '', " ").concat(value);
+      return this._query;
     }
   }, {
     key: "lte",
     value: function lte(val) {
+      /**
+       *  @argument       val
+       *  @type           number | string
+       *  @returns        Query instance
+       */
       return this.lt(val, true);
     }
   }, {
     key: "like",
     value: function like(val) {
+      /**
+       *  @argument       val
+       *  @type           number | string | boolean
+       *  @returns        Query instance
+       */
       var value = '?';
 
       switch (true) {
@@ -462,13 +588,14 @@ function () {
         case _lodash["default"].isBoolean(val):
         case _lodash["default"].isString(val):
           value = "'".concat(val, "'");
+          break;
 
         default:
           throwErrorWrongArgs();
       }
 
-      this._where._query._query += " LIKE ".concat(value);
-      return this._where._query;
+      this._query._query += " LIKE ".concat(value);
+      return this._query;
     }
   }]);
 
@@ -484,28 +611,47 @@ function () {
   function Insert(query) {
     _classCallCheck(this, Insert);
 
+    /**
+     *  @argument       query
+     *  @type           Query instance
+     */
     this._query = query;
   }
 
   _createClass(Insert, [{
     key: "cols",
     value: function cols(columns) {
+      /**
+       *  @argument       columns
+       *  @type           string | Array<string>
+       *  @returns        Insert instance
+       */
+      var cols = [];
+
       switch (true) {
         case _lodash["default"].isString(columns):
-          this._query._col = columns.split(/,\s?/g);
+          cols = columns.split(/,\s?/g);
 
         case _lodash["default"].isArray(columns):
-          this._query._query += "(".concat(this._query._col.join(", "), ") ");
+          this._query._col += "(".concat(cols.join(", "), ") ");
+          break;
 
         default:
           throwErrorWrongArgs();
       }
+
+      return this;
     }
   }, {
     key: "values",
     value: function values() {
       var _this = this;
 
+      /**
+       *  @argument       columnValues
+       *  @type           string
+       *  @returns        Query instance
+       */
       this._query._query += "VALUES ";
 
       for (var _len = arguments.length, columnValues = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -513,7 +659,7 @@ function () {
       }
 
       columnValues.forEach(function (value, index, array) {
-        _this._query._query += "(".concat(value.join(', '), ")").concat(index + 1 == array.length ? ', ' : '');
+        _this._query._query += "(".concat(value.join(', '), ")").concat(index + 1 != array.length ? ', ' : '');
       });
       return this._query;
     }
@@ -531,6 +677,10 @@ function () {
   function Update(query) {
     _classCallCheck(this, Update);
 
+    /**
+     *  @argument       query
+     *  @type           Query instance
+     */
     this._query = query;
     this._query._query += 'SET ';
   }
@@ -539,6 +689,18 @@ function () {
     key: "set",
     value: function set(col) {
       var val = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '?';
+
+      /**
+       *  @argument       col
+       *  @type           Array<{ column: string, value: any }> | string
+       *  @returns        Query instance
+       *  
+       *  ---------------
+       *  
+       *  @argument       val
+       *  @type           any
+       *  @returns        Query instance
+       */
       var columns = [];
 
       switch (true) {
@@ -550,13 +712,14 @@ function () {
           break;
 
         case _lodash["default"].isObject(col):
-          for (var column in col) {
-            col[column] && columns.push({
-              column: column,
-              value: _lodash["default"].isString(col[column]) ? "'".concat(col[column], "'") : col[column]
-            });
+          for (var _column in col) {
+            if (!col[_column]) continue;
           }
 
+          columns.push({
+            column: column,
+            value: _lodash["default"].isString(col[column]) ? "'".concat(col[column], "'") : col[column]
+          });
           break;
 
         default:
@@ -582,6 +745,10 @@ function () {
   function Delete(query) {
     _classCallCheck(this, Delete);
 
+    /**
+     *  @argument       query
+     *  @type           Query isntance
+     */
     this._query = query;
     this._query._query = 'DELETE ';
   }
@@ -589,17 +756,23 @@ function () {
   _createClass(Delete, [{
     key: "from",
     value: function from(table) {
+      /**
+       *  @argument       table
+       *  @type           string | number | boolean
+       *  @returns        Query instance
+       */
       switch (true) {
         case _lodash["default"].isBoolean(table):
         case _lodash["default"].isNumber(table):
         case _lodash["default"].isString(table):
-          this._query._query += '`' + table + '` ';
+          this._query._table = String(table);
+          this._query._query += '`' + this._query._table + '` ';
+          break;
 
         default:
           throwErrorWrongArgs();
       }
 
-      this._query._table = table;
       return this._query;
     }
   }]);

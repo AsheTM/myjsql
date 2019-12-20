@@ -97,7 +97,7 @@ export class Query {
             default: 
                 throwErrorWrongArgs();
         }
-        query += ' ' + columns.reduce((acc, val, index) => (acc ? ', ': '') + val, null);
+        query += ' ' + columns.reduce((acc, val) => (acc ? ', ': '') + val, null);
         return new Select(new Query(query, columns));
     }
 
@@ -139,12 +139,18 @@ export class Query {
     }
 
     where() {
+        /**
+         *  @returns        Query instance | Where instance
+         */
         if(!this._where)
             return this._where = new Where(this);
         return this;
     }
 
     and() {
+        /**
+         *  @returns        Query instance | Where instance
+         */
         if(this._where) {
             this._query += ' AND ';
             return this._where;
@@ -153,6 +159,17 @@ export class Query {
     }
 
     limit(arg1 = { page: 1, size: null }, arg2) {
+        /**
+         *  @argument       arg1
+         *  @type           number | { page: number, size: number }
+         *  @returns        Query instance
+         *  
+         *  ----------------
+         *  
+         *  @argument       arg2
+         *  @type           number
+         *  @returns        Query instance
+         */
         this._size = +arg1.size || Number(arg1) || +this._size;
         this._page = (Number(arg2) || +arg1.page || +this._page) - 1;
         switch(true) {
@@ -168,12 +185,21 @@ export class Query {
     }
 
     sort(col, order) {
+        /**
+         *  @argument       col
+         *  @type           string | Array<string>
+         *  @returns        Query instance
+         *  
+         *  ----------------
+         *  
+         *  @argument       order
+         *  @type           ORDER enum values | { sort: ORDER enum values }
+         *  @returns        Query instance
+         */
         let 
             column      = '', 
             sortOrder   = _.isObject(order) ? order.sort : ORDER.ASC;
         switch(true) {
-            case !col || !_.includes(ORDER, order):
-                return this;
             case _.isArray(col):
                 col = col.reduce((acc, c) => acc + ', ' + c, '');
             case _.isString(col):
@@ -188,14 +214,29 @@ export class Query {
     }
 
     sortAsc(col) {
+        /**
+         *  @argument       col
+         *  @type           string | Array<string>
+         *  @returns        Query instance
+         */
         return this.sort(col, ORDER.ASC);
     }
 
     sortDesc(col) {
+        /**
+         *  @argument       col
+         *  @type           string | Array<string>
+         *  @returns        Query instance
+         */
         return this.sort(col, ORDER.DESC);
     }
 
     exec(arg) {
+        /**
+         *  @argument       arg
+         *  @type           string | number | boolean | Array<string | number | boolean | Array<...>>
+         *  @returns        
+         */
         let array = [];
         switch(true) {
             case _.isString(arg): 
@@ -209,6 +250,9 @@ export class Query {
     }
 
     toString() {
+        /**
+         *  @returnsstring
+         */
         return this._query;
     }
     
@@ -220,18 +264,29 @@ export class Query {
 class Select {
 
     constructor(query) {
+        /**
+         *  @argument       query
+         *  @type           Query instance
+         */
         this._query = query;
     }
 
     from(table) {
+        /**
+         *  @argument       table
+         *  @type           string | number | boolean
+         *  @returns        Query instance
+         */
         switch(true) {
-            case _.isString(table):
-            this._query._table = table;
+            case _.isBoolean(table): 
+            case _.isNumber(table): 
+            case _.isString(table): 
+                this._query._table = String(table);
+                this._query._query += ' FROM ' + this._query._table;
                 break;
             default: 
                 throwErrorWrongArgs();
         }
-        this._query._query += ' FROM ' + this._query._table;
         return this._query;
     }
     
@@ -240,28 +295,48 @@ class Select {
 class Where {
 
     constructor(query) {
-        if(!query || !_.isObject(query))
-            throwErrorWrongArgs();
+        /**
+         *  @argument       query
+         *  @type           Query instance
+         */
         this._query = query;
         this._query._query += ' WHERE ';
     }
 
     attr(col) {
-        this._query._query += `${ col }`;
-        return new Statment(this);
+        /**
+         *  @argument       col
+         *  @type           string
+         *  @returns        Statment instance
+         */
+        switch(true) {
+            case _.isString(col): 
+                this._query._query += `${ col }`;
+                break;
+            default: 
+                throwErrorWrongArgs();
+        }
+        return new Statment(this._query);
     }
     
 }
 
 class Statment {
 
-    constructor(where) {
-        if(!where || !_.isObject(where))
-            throwErrorWrongArgs();
-        this._where = where;
+    constructor(query) {
+        /**
+         *  @argument       query
+         *  @type           Query instance
+         */
+        this._query = query;
     }
 
     eq(val) {
+        /**
+         *  @argument       val
+         *  @type           number | string | boolean
+         *  @returns        Query instance
+         */
         let value = '?';
         switch(true) {
             case _.isNumber(val): 
@@ -274,11 +349,31 @@ class Statment {
             default: 
                 throwErrorWrongArgs();
         }
-        this._where._query._query += ` = ${ value }`;
-        return this._where._query;
+        this._query._query += ` = ${ value }`;
+        return this._query;
+    }
+
+    equals(val) {
+        /**
+         *  @argument       val
+         *  @type           number | string | boolean
+         *  @returns        Query instance
+         */
+        return this.eq(val);
     }
 
     gt(val, equal) {
+        /**
+         *  @argument       val
+         *  @type           number | string
+         *  @returns        Query instance
+         *  
+         *  ----------------
+         *  
+         *  @argument       equal
+         *  @type           boolean
+         *  @returns        Query instance
+         */
         let value = '?';
         switch(true) {
             case _.isString(val) && !Number.isNaN(val): 
@@ -288,15 +383,31 @@ class Statment {
             default: 
                 throwErrorWrongArgs();
         }
-        this._where._query._query += ` >${ equal ? '=' : '' } ${ value }`;
-        return this._where._query;
+        this._query._query += ` >${ equal ? '=' : '' } ${ value }`;
+        return this._query;
     }
 
     gte(val) {
+        /**
+         *  @argument       val
+         *  @type           number | string
+         *  @returns        Query instance
+         */
         return this.gt(val, true);
     }
 
     lt(val, equal) {
+        /**
+         *  @argument       val
+         *  @type           number | string
+         *  @returns        Query instance
+         *  
+         *  ----------------
+         *  
+         *  @argument       equal
+         *  @type           boolean
+         *  @returns        Query instance
+         */
         let value = '?';
         switch(true) {
             case _.isString(val) && !Number.isNaN(val): 
@@ -306,26 +417,37 @@ class Statment {
             default: 
                 throwErrorWrongArgs();
         }
-        this._where._query._query += ` <${ equal ? '=' : '' } ${ value }`;
-        return this._where._query;
+        this._query._query += ` <${ equal ? '=' : '' } ${ value }`;
+        return this._query;
     }
 
     lte(val) {
+        /**
+         *  @argument       val
+         *  @type           number | string
+         *  @returns        Query instance
+         */
         return this.lt(val, true);
     }
 
     like(val) {
+        /**
+         *  @argument       val
+         *  @type           number | string | boolean
+         *  @returns        Query instance
+         */
         let value = '?';
         switch(true) {
             case _.isNumber(val): 
             case _.isBoolean(val): 
             case _.isString(val): 
                 value = `'${ val }'`;
+                break;
             default: 
                 throwErrorWrongArgs();
         }
-        this._where._query._query += ` LIKE ${ value }`;
-        return this._where._query;
+        this._query._query += ` LIKE ${ value }`;
+        return this._query;
     }
     
 }
@@ -336,24 +458,41 @@ class Statment {
 class Insert {
 
     constructor(query) {
+        /**
+         *  @argument       query
+         *  @type           Query instance
+         */
         this._query = query;
     }
 
     cols(columns) {
+        /**
+         *  @argument       columns
+         *  @type           string | Array<string>
+         *  @returns        Insert instance
+         */
+        let cols = [];
         switch(true) {
             case _.isString(columns): 
-                this._query._col = columns.split(/,\s?/g);
+                cols = columns.split(/,\s?/g);
             case _.isArray(columns): 
-                this._query._query += `(${ this._query._col.join(", ") }) `;
+                this._query._col += `(${ cols.join(", ") }) `;
+                break;
             default: 
                 throwErrorWrongArgs();
         }
+        return this;
     }
 
     values(...columnValues) {
+        /**
+         *  @argument       columnValues
+         *  @type           string
+         *  @returns        Query instance
+         */
         this._query._query += "VALUES ";
         columnValues.forEach((value, index, array) => {
-            this._query._query += `(${ value.join(', ') })${ index + 1 == array.length ? ', ' : ''}`;
+            this._query._query += `(${ value.join(', ') })${ index + 1 != array.length ? ', ' : ''}`;
         });
         return this._query;
     }
@@ -366,11 +505,26 @@ class Insert {
 class Update {
 
     constructor(query) {
+        /**
+         *  @argument       query
+         *  @type           Query instance
+         */
         this._query = query;
         this._query._query += 'SET ';
     }
 
     set(col, val = '?') {
+        /**
+         *  @argument       col
+         *  @type           Array<{ column: string, value: any }> | string
+         *  @returns        Query instance
+         *  
+         *  ---------------
+         *  
+         *  @argument       val
+         *  @type           any
+         *  @returns        Query instance
+         */
         let columns = [];
         switch(true) {
             case _.isString(col):
@@ -383,7 +537,9 @@ class Update {
                 break;
             case _.isObject(col): 
                 for(let column in col)
-                    col[column] && columns.push({
+                    if(!col[column]) 
+                        continue;
+                    columns.push({
                         column, 
                         value:  _.isString(col[column]) ? `'${ col[column] }'` : col[column]
                     });
@@ -403,20 +559,30 @@ class Update {
 class Delete {
 
     constructor(query) {
+        /**
+         *  @argument       query
+         *  @type           Query isntance
+         */
         this._query = query;
         this._query._query = 'DELETE ';
     }
 
     from(table) {
+        /**
+         *  @argument       table
+         *  @type           string | number | boolean
+         *  @returns        Query instance
+         */
         switch(true) {
             case _.isBoolean(table): 
             case _.isNumber(table): 
             case _.isString(table): 
-                this._query._query += '`' + table + '` ';
+                this._query._table = String(table);
+                this._query._query += '`' + this._query._table + '` ';
+                break;
             default: 
                 throwErrorWrongArgs();
         }
-        this._query._table = table;
         return this._query;
     }
     
